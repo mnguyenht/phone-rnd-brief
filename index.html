@@ -1,0 +1,1191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Phone R&amp;D Brief: A $500 Phone for Technical Buyers</title>
+<meta name="description" content="R&amp;D plan for a $549 Android phone for technical buyers: chip choice, parts budget, build-or-buy decisions, and the path to the factory.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Phone R&amp;D Brief: A $500 Phone for Technical Buyers">
+<meta property="og:description" content="R&amp;D plan for a $549 Android phone for technical buyers: chip choice, parts budget, build-or-buy decisions, and the path to the factory.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet">
+<style>
+:root {
+  color-scheme: light;
+  --bg: #F1F3F0;
+  --surface: #FFFFFF;
+  --ink: #13211B;
+  --muted: #4D5D55;
+  --line: #CCD5CF;
+  --mask: #1F5A43;
+  --mask-ink: #FFFFFF;
+  --gold: #8A6114;
+  --gold-fill: #C9993A;
+  --gold-soft: #F4E9CF;
+  --buy: #5E6E66;
+  --screen: #18241F;
+  --panel: #2C4037;
+  --board: #1F5A43;
+  --chip: #16211C;
+  --edge: #B7C2BB;
+  --face: #FFFFFF;
+  --header: rgba(241, 243, 240, 0.92);
+  --mem: #1F5A43;
+  --bar: #9FB1A7;
+  --track: #E2E8E4;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0F1A15;
+    --surface: #15241D;
+    --ink: #E6EDE8;
+    --muted: #A3B3AA;
+    --line: #2B3E34;
+    --mask: #8BCDAA;
+    --mask-ink: #0F1A15;
+    --gold: #DDB86E;
+    --gold-fill: #C9993A;
+    --gold-soft: #33291A;
+    --buy: #93A49B;
+    --screen: #070D0A;
+    --panel: #1E2F27;
+    --board: #1F5A43;
+    --chip: #0C1511;
+    --edge: #24382E;
+    --face: #1B2D25;
+    --header: rgba(15, 26, 21, 0.92);
+    --mem: #8BCDAA;
+    --bar: #4E6358;
+    --track: #1D2D25;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0F1A15;
+  --surface: #15241D;
+  --ink: #E6EDE8;
+  --muted: #A3B3AA;
+  --line: #2B3E34;
+  --mask: #8BCDAA;
+  --mask-ink: #0F1A15;
+  --gold: #DDB86E;
+  --gold-fill: #C9993A;
+  --gold-soft: #33291A;
+  --buy: #93A49B;
+  --screen: #070D0A;
+  --panel: #1E2F27;
+  --board: #1F5A43;
+  --chip: #0C1511;
+  --edge: #24382E;
+  --face: #1B2D25;
+  --header: rgba(15, 26, 21, 0.92);
+  --mem: #8BCDAA;
+  --bar: #4E6358;
+  --track: #1D2D25;
+}
+
+*, *::before, *::after { box-sizing: inherit; }
+html {
+  scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 72px);
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Archivo", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  font-stretch: 100%;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  z-index: 10;
+  background: var(--header);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+a { color: var(--mask); text-underline-offset: 3px; }
+/* Cross-links in tables and lists: quiet until hovered */
+a.x { color: inherit; text-decoration-color: var(--bar); text-decoration-thickness: 1.5px; }
+a.x:hover { color: var(--mask); text-decoration-color: currentColor; }
+/* No native scrollbars; scrolling still works */
+* { scrollbar-width: none; }
+*::-webkit-scrollbar { display: none; }
+:focus-visible { outline: 3px solid var(--gold-fill); outline-offset: 2px; border-radius: 2px; }
+
+/* Header */
+.top {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 9;
+  background: var(--header);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.top-inner {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0.7rem 1.25rem;
+  display: flex;
+  gap: 1.75rem;
+  align-items: center;
+}
+.brand {
+  font-weight: 800;
+  font-stretch: 115%;
+  white-space: nowrap;
+  text-decoration: none;
+  color: var(--ink);
+}
+.top nav { overflow-x: auto; scrollbar-width: none; min-width: 0; }
+.top nav::-webkit-scrollbar { display: none; }
+.top nav ul { display: flex; gap: 1.1rem; list-style: none; margin: 0; padding: 0; white-space: nowrap; max-width: none; }
+.top nav a { color: var(--muted); text-decoration: none; font-size: 0.9rem; font-weight: 560; }
+.top nav a:hover { color: var(--ink); }
+.top nav a[aria-current] {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-fill);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
+}
+
+/* Layout and type */
+main { max-width: 72rem; margin: 0 auto; padding: 0 1.25rem 3rem; }
+section { padding: 3.5rem 0 1.5rem; border-top: 1px solid var(--line); }
+.hero { border-top: 0; padding-top: 3.25rem; }
+h1 {
+  font-size: clamp(2.4rem, 6.2vw, 4.4rem);
+  line-height: 1.02;
+  font-weight: 820;
+  font-stretch: 112%;
+  letter-spacing: -0.02em;
+  margin: 0 0 1.25rem;
+  max-width: 17ch;
+}
+h2 {
+  font-size: clamp(1.6rem, 3.4vw, 2.2rem);
+  line-height: 1.1;
+  font-weight: 780;
+  font-stretch: 110%;
+  letter-spacing: -0.01em;
+  margin: 0 0 1rem;
+  max-width: 30ch;
+}
+h3 { font-size: 1.2rem; line-height: 1.3; font-weight: 720; margin: 2.25rem 0 0.5rem; }
+p, ul, ol { max-width: 68ch; }
+ul { padding-left: 1.2rem; }
+li { margin: 0.35rem 0; }
+.lede { font-size: clamp(1.15rem, 2vw, 1.35rem); line-height: 1.5; max-width: 54ch; margin: 0 0 0.75rem; }
+.note { color: var(--muted); font-size: 0.9375rem; }
+
+/* Hero exploded view */
+.explode {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 2.5rem;
+  align-items: center;
+  margin: 2.25rem 0 0;
+}
+.explode figure { margin: 0; }
+.explode svg { width: 100%; height: auto; max-width: 500px; display: block; }
+.explode figcaption { color: var(--muted); font-size: 0.875rem; margin-top: 0.5rem; max-width: 46ch; }
+.layers { list-style: none; padding: 0; margin: 0; max-width: none; }
+.layers li {
+  display: grid;
+  grid-template-columns: 2.4rem 1fr;
+  gap: 0.15rem 0.8rem;
+  padding: 0.85rem 0;
+  margin: 0;
+  border-bottom: 1px solid var(--line);
+}
+.layers li:first-child { border-top: 1px solid var(--line); }
+.num {
+  width: 1.9rem; height: 1.9rem;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  font-weight: 760; font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+.num.design { background: var(--gold-fill); color: #13211B; }
+.num.buy { border: 2px solid var(--buy); color: var(--ink); }
+.layers p { margin: 0.2rem 0 0; color: var(--muted); font-size: 0.9375rem; }
+.layers .head { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: baseline; }
+
+.face { stroke-width: 2.5; }
+.face.design { fill: var(--face); stroke: var(--gold-fill); stroke-width: 3.5; }
+.face.buy { fill: var(--face); stroke: var(--buy); }
+.edge { fill: var(--edge); }
+.ghost { fill: none; stroke: var(--line); stroke-width: 2; stroke-dasharray: 6 6; }
+.island { fill: var(--edge); }
+.lens { fill: var(--screen); stroke: var(--buy); stroke-width: 3; }
+.flash { fill: var(--gold-fill); }
+.screw { fill: var(--buy); }
+.cell { fill: var(--buy); opacity: 0.35; }
+.tab { fill: var(--gold-fill); }
+.pcb { fill: var(--board); stroke: var(--gold-fill); stroke-width: 3; }
+.chip { fill: var(--chip); stroke: #6D7F76; stroke-width: 1.5; }
+.pad { fill: var(--gold-fill); }
+.flex { fill: #C98B2B; opacity: 0.85; }
+.ring { fill: none; stroke: var(--gold-fill); stroke-width: 12; }
+.ring-edge { fill: none; stroke: var(--edge); stroke-width: 12; }
+.key { fill: var(--gold-fill); }
+.jack { fill: var(--bg); stroke: var(--ink); stroke-width: 2; }
+.glass { fill: var(--screen); stroke: var(--buy); stroke-width: 2.5; }
+.panel { fill: var(--panel); }
+.punch { fill: var(--screen); }
+.home { fill: none; stroke: var(--gold-fill); stroke-width: 3; }
+.leader { stroke: var(--muted); stroke-width: 1.5; }
+.badge.design { fill: var(--gold-fill); }
+.badge.buy { fill: var(--bg); stroke: var(--buy); stroke-width: 2; }
+.badge-n { font: 760 16px "Archivo", Arial, sans-serif; text-anchor: middle; fill: var(--ink); }
+.badge-n.on-gold { fill: #13211B; }
+
+.layer { animation: explode 1100ms cubic-bezier(0.2, 0.75, 0.15, 1) 250ms both; }
+@keyframes explode {
+  from { transform: translateY(var(--from)); }
+  to { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) { .layer { animation: none; } }
+
+/* Tags */
+.tag {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  white-space: nowrap;
+  vertical-align: 0.08em;
+}
+.tag.design { background: var(--gold-fill); color: #13211B; }
+.tag.buy { border: 1.5px solid var(--buy); color: var(--ink); padding: 0.22rem 0.45rem; }
+.tag.adapt { background: var(--mask); color: var(--mask-ink); }
+.tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+
+/* Decisions */
+.decisions {
+  display: grid;
+  grid-template-columns: 12rem 1fr;
+  margin: 1.75rem 0 0.5rem;
+  max-width: 60rem;
+}
+.decisions dt, .decisions dd { padding: 0.85rem 0; border-top: 1px solid var(--line); margin: 0; }
+.decisions dt { font-weight: 720; padding-right: 1rem; }
+@media (max-width: 640px) {
+  .decisions { grid-template-columns: 1fr; }
+  .decisions dd { border-top: 0; padding-top: 0; }
+}
+
+/* Tables */
+.table-wrap { overflow-x: auto; margin: 1.5rem 0; -webkit-overflow-scrolling: touch; }
+table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 46rem;
+  font-size: 0.9375rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.45;
+}
+th, td { text-align: left; vertical-align: top; padding: 0.75rem 1rem 0.75rem 0; border-bottom: 1px solid var(--line); }
+thead th { font-weight: 700; font-size: 0.85rem; color: var(--muted); border-bottom: 2px solid var(--ink); padding-top: 0; }
+tbody th { font-weight: 700; }
+tr.ours { background: var(--gold-soft); }
+tr.ours th { padding-left: 0.6rem; }
+.meter {
+  display: block;
+  height: 6px;
+  width: 8rem;
+  background: var(--track);
+  border-radius: 3px;
+  margin-top: 0.4rem;
+  position: relative;
+  overflow: hidden;
+}
+.meter::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(var(--v) * 100%);
+  background: var(--bar);
+}
+.meter.pick::after { background: var(--gold-fill); }
+.table-note { color: var(--muted); font-size: 0.875rem; margin-top: -0.75rem; }
+
+/* Calculator */
+.calc {
+  margin: 2rem 0 1.5rem;
+  padding: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  max-width: 62rem;
+}
+.calc h3 { margin-top: 0; }
+.controls { display: flex; flex-wrap: wrap; gap: 1.25rem 2rem; margin: 1.25rem 0 1.5rem; }
+fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+legend { font-weight: 700; font-size: 0.875rem; margin-bottom: 0.45rem; padding: 0; }
+.seg { display: inline-flex; flex-wrap: wrap; border: 1.5px solid var(--ink); border-radius: 5px; overflow: hidden; }
+.seg label { position: relative; }
+.seg input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.seg span {
+  display: block;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 620;
+  cursor: pointer;
+  border-left: 1.5px solid var(--ink);
+}
+.seg label:first-child span { border-left: 0; }
+.seg input:checked + span { background: var(--ink); color: var(--bg); }
+.seg input:focus-visible + span { outline: 3px solid var(--gold-fill); outline-offset: -3px; }
+.bom { display: grid; gap: 0.5rem; }
+.bom-row {
+  display: grid;
+  grid-template-columns: minmax(10rem, 16rem) 1fr 6.5rem;
+  gap: 0.25rem 0.9rem;
+  align-items: center;
+  font-size: 0.9375rem;
+}
+.track { position: relative; height: 12px; background: var(--track); border-radius: 3px; }
+.range { position: absolute; top: 0; bottom: 0; border-radius: 3px; background: var(--bar); transition: left 300ms ease, width 300ms ease; }
+.bom-row.mem .range { background: var(--mem); }
+.bom-row.chip .range { background: var(--gold-fill); }
+.bom-row.mem .lbl, .bom-row.chip .lbl { font-weight: 680; }
+.val { text-align: right; font-variant-numeric: tabular-nums; }
+.axis { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.axis-row .lbl { visibility: hidden; }
+@media (prefers-reduced-motion: reduce) { .range { transition: none; } }
+@media (max-width: 640px) {
+  .bom-row { grid-template-columns: 1fr 5.5rem; }
+  .bom-row .track, .bom-row .axis { grid-column: 1 / -1; grid-row: 2; }
+  .axis-row .lbl { display: none; }
+}
+.results {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 1rem 2rem;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 2px solid var(--ink);
+}
+.results .k { font-size: 0.85rem; color: var(--muted); }
+.results .v { font-size: 1.55rem; font-weight: 780; font-stretch: 106%; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.results-line { margin: 1rem 0 0; font-weight: 600; }
+
+/* Features */
+.feature {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  gap: 0.5rem 2rem;
+  padding: 1.25rem 0;
+  border-top: 1px solid var(--line);
+  max-width: 62rem;
+}
+.feature:first-of-type { margin-top: 1.5rem; }
+.feature h3 { margin: 0; }
+.feature p { margin: 0 0 0.6rem; }
+.feature .catch { color: var(--muted); }
+@media (max-width: 720px) { .feature { grid-template-columns: 1fr; } }
+
+/* Definition list for partners */
+.terms { margin: 1rem 0; max-width: 62rem; }
+.terms dt { font-weight: 720; margin-top: 0.75rem; }
+.terms dd { margin: 0.1rem 0 0; max-width: 68ch; }
+
+/* Critical path */
+.path { list-style: none; padding: 0; counter-reset: step; max-width: 62rem; margin: 1.5rem 0; }
+.path li {
+  counter-increment: step;
+  display: grid;
+  grid-template-columns: 2.75rem minmax(0, 1fr) 10rem;
+  gap: 0.25rem 1rem;
+  padding: 0.95rem 0;
+  margin: 0;
+  border-bottom: 1px solid var(--line);
+}
+.path li:first-child { border-top: 1px solid var(--line); }
+.path li::before {
+  content: counter(step);
+  font-weight: 820;
+  font-stretch: 115%;
+  font-size: 1.45rem;
+  line-height: 1.15;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+.path .what p { margin: 0.15rem 0 0; color: var(--muted); font-size: 0.9375rem; }
+.path .what strong { font-weight: 720; }
+.path .when { font-size: 0.875rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.gantt { display: block; height: 6px; background: var(--track); border-radius: 3px; position: relative; margin-top: 0.4rem; }
+.gantt::after {
+  content: "";
+  position: absolute; top: 0; bottom: 0;
+  left: calc(var(--s) / 12 * 100%);
+  width: calc((var(--e) - var(--s)) / 12 * 100%);
+  background: var(--gold-fill);
+  border-radius: 3px;
+}
+@media (max-width: 640px) {
+  .path li { grid-template-columns: 2.25rem minmax(0, 1fr); }
+  .path .when { grid-column: 2; }
+}
+
+/* Sources and footer */
+.sources h3 { font-size: 1rem; margin-top: 1.75rem; }
+.sources ul { list-style: none; padding: 0; font-size: 0.9rem; }
+.sources li { margin: 0.4rem 0; }
+footer {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+footer p { margin: 0; }
+
+@media (max-width: 820px) {
+  .explode { grid-template-columns: 1fr; gap: 1.5rem; }
+  .explode svg { max-width: 420px; margin: 0 auto; }
+  section { padding-top: 2.75rem; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <a class="brand" href="#top">Phone R&amp;D Brief</a>
+    <nav aria-label="Sections">
+      <ul>
+        <li><a href="#summary">Summary</a></li>
+        <li><a href="#buyer">Buyer</a></li>
+        <li><a href="#market">Market</a></li>
+        <li><a href="#budget">Budget</a></li>
+        <li><a href="#chip">Chip</a></li>
+        <li><a href="#build">Build or Buy</a></li>
+        <li><a href="#ours">Our Design</a></li>
+        <li><a href="#spec">Spec</a></li>
+        <li><a href="#plan">Plan</a></li>
+        <li><a href="#questions">Questions</a></li>
+        <li><a href="#sources">Sources</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+<section class="hero" aria-labelledby="title">
+  <h1 id="title">A Phone for People Who Read the Spec Sheet</h1>
+  <p class="lede">R&amp;D plan for our class project: an Android phone for technical buyers that feels engineered, costs around $500, and is honest about every part inside it.</p>
+  <p class="note">Research current as of November 2026. Figures come from reviews, analyst reports, and teardowns listed under <a href="#sources">Sources</a>. Anything labeled an estimate is our own model.</p>
+
+  <div class="explode">
+    <figure>
+      <svg viewBox="0 0 470 540" role="img" aria-labelledby="ex-t">
+        <title id="ex-t">Exploded view of the phone in five layers, front to back: display, frame and controls, main board, battery, back panel</title>
+
+        <!-- 5: back panel -->
+        <g class="layer" style="--from:-180px">
+          <g transform="translate(210 446)">
+            <g transform="translate(0 8) scale(1 0.5) rotate(-45)"><rect class="edge" x="-75" y="-150" width="150" height="300" rx="24"/></g>
+            <g transform="scale(1 0.5) rotate(-45)">
+              <rect class="face design" x="-75" y="-150" width="150" height="300" rx="24"/>
+              <rect class="island" x="-63" y="-139" width="46" height="84" rx="16"/>
+              <circle class="lens" cx="-40" cy="-115" r="14"/>
+              <circle class="lens" cx="-40" cy="-79" r="14"/>
+              <circle class="flash" cx="-6" cy="-128" r="4.5"/>
+              <circle class="screw" cx="60" cy="-136" r="3.5"/>
+              <circle class="screw" cx="60" cy="136" r="3.5"/>
+              <circle class="screw" cx="-60" cy="136" r="3.5"/>
+            </g>
+            <line class="leader" x1="163" y1="26.5" x2="195" y2="26.5"/>
+            <circle class="badge design" cx="210" cy="26.5" r="15"/>
+            <text class="badge-n on-gold" x="210" y="32">5</text>
+          </g>
+        </g>
+
+        <!-- 4: battery -->
+        <g class="layer" style="--from:-90px">
+          <g transform="translate(210 356)">
+            <g transform="translate(0 8) scale(1 0.5) rotate(-45)"><rect class="edge" x="-75" y="-150" width="150" height="300" rx="24"/></g>
+            <g transform="scale(1 0.5) rotate(-45)">
+              <rect class="face buy" x="-75" y="-150" width="150" height="300" rx="24"/>
+              <rect class="cell" x="-60" y="-45" width="120" height="165" rx="10"/>
+              <rect class="tab" x="-15" y="120" width="30" height="20" rx="4"/>
+            </g>
+            <line class="leader" x1="163" y1="26.5" x2="195" y2="26.5"/>
+            <circle class="badge buy" cx="210" cy="26.5" r="15"/>
+            <text class="badge-n" x="210" y="32">4</text>
+          </g>
+        </g>
+
+        <!-- 3: main board -->
+        <g class="layer" style="--from:0px">
+          <g transform="translate(210 266)">
+            <g transform="scale(1 0.5) rotate(-45)">
+              <rect class="ghost" x="-75" y="-150" width="150" height="300" rx="24"/>
+              <rect class="pcb" x="-68" y="-142" width="136" height="104" rx="12"/>
+              <rect class="pcb" x="-68" y="110" width="136" height="32" rx="8"/>
+              <rect class="flex" x="-6" y="-38" width="12" height="148"/>
+              <rect class="chip" x="-24" y="-124" width="48" height="48" rx="4"/>
+              <rect class="chip" x="34" y="-124" width="24" height="36" rx="3"/>
+              <rect class="chip" x="-58" y="-124" width="24" height="24" rx="3"/>
+              <rect class="chip" x="-58" y="-92" width="24" height="36" rx="3"/>
+              <rect class="chip" x="34" y="-80" width="24" height="30" rx="3"/>
+              <rect class="pad" x="-18" y="-66" width="8" height="8"/>
+              <rect class="pad" x="-4" y="-66" width="8" height="8"/>
+              <rect class="pad" x="10" y="-66" width="8" height="8"/>
+              <rect class="chip" x="30" y="117" width="22" height="17" rx="2"/>
+              <rect class="pad" x="-14" y="134" width="28" height="7" rx="2"/>
+            </g>
+            <line class="leader" x1="163" y1="26.5" x2="195" y2="26.5"/>
+            <circle class="badge design" cx="210" cy="26.5" r="15"/>
+            <text class="badge-n on-gold" x="210" y="32">3</text>
+          </g>
+        </g>
+
+        <!-- 2: frame and controls -->
+        <g class="layer" style="--from:90px">
+          <g transform="translate(210 176)">
+            <g transform="translate(0 8) scale(1 0.5) rotate(-45)"><rect class="ring-edge" x="-75" y="-150" width="150" height="300" rx="24"/></g>
+            <g transform="scale(1 0.5) rotate(-45)">
+              <rect class="ring" x="-75" y="-150" width="150" height="300" rx="24"/>
+              <rect class="key" x="78" y="-96" width="8" height="40" rx="3"/>
+              <rect class="key" x="78" y="-40" width="8" height="24" rx="3"/>
+              <rect class="key" x="-86" y="-100" width="8" height="26" rx="3"/>
+              <circle class="jack" cx="35" cy="-150" r="6.5"/>
+            </g>
+            <line class="leader" x1="163" y1="26.5" x2="195" y2="26.5"/>
+            <circle class="badge design" cx="210" cy="26.5" r="15"/>
+            <text class="badge-n on-gold" x="210" y="32">2</text>
+          </g>
+        </g>
+
+        <!-- 1: display and cover glass -->
+        <g class="layer" style="--from:180px">
+          <g transform="translate(210 86)">
+            <g transform="translate(0 8) scale(1 0.5) rotate(-45)"><rect class="edge" x="-75" y="-150" width="150" height="300" rx="24"/></g>
+            <g transform="scale(1 0.5) rotate(-45)">
+              <rect class="glass" x="-75" y="-150" width="150" height="300" rx="24"/>
+              <rect class="panel" x="-66" y="-140" width="132" height="250" rx="16"/>
+              <circle class="punch" cx="0" cy="-127" r="5"/>
+              <rect class="home" x="-24" y="121" width="48" height="17" rx="8.5"/>
+            </g>
+            <line class="leader" x1="163" y1="26.5" x2="195" y2="26.5"/>
+            <circle class="badge buy" cx="210" cy="26.5" r="15"/>
+            <text class="badge-n" x="210" y="32">1</text>
+          </g>
+        </g>
+      </svg>
+      <figcaption>The phone pulled apart, front to back. Gold layers are ours to design. Outlined layers we buy.</figcaption>
+    </figure>
+
+    <ol class="layers" aria-label="Layers, front to back">
+      <li>
+        <span class="num buy">1</span>
+        <div>
+          <div class="head"><strong><a class="x" href="#build">Cover glass and OLED panel</a></strong> <span class="tag buy">Buy</span></div>
+          <p>From a panel maker such as Samsung Display, BOE, or Visionox. The home button opening in the glass is our design.</p>
+        </div>
+      </li>
+      <li>
+        <span class="num design">2</span>
+        <div>
+          <div class="head"><strong><a class="x" href="#f-frame">Machined frame and controls</a></strong> <span class="tag design">Design</span></div>
+          <p>Aluminum frame, power and volume keys, alert slider, headphone jack, and the home button mechanism.</p>
+        </div>
+      </li>
+      <li>
+        <span class="num design">3</span>
+        <div>
+          <div class="head"><strong><a class="x" href="#build">Main board</a></strong> <span class="tag design">Design layout</span></div>
+          <p>We adapt the chip vendor’s reference layout to fit our parts. Every chip on it is bought.</p>
+        </div>
+      </li>
+      <li>
+        <span class="num buy">4</span>
+        <div>
+          <div class="head"><strong><a class="x" href="#f-repair">Battery</a></strong> <span class="tag buy">Buy</span></div>
+          <p>Bought as a cell. The pull tab and screw-down bracket that make it owner-replaceable are ours.</p>
+        </div>
+      </li>
+      <li>
+        <span class="num design">5</span>
+        <div>
+          <div class="head"><strong><a class="x" href="#f-repair">Back panel and camera island</a></strong> <span class="tag design">Design</span></div>
+          <p>Matte glass panel held on with screws. The camera modules inside it are bought.</p>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section id="summary" aria-labelledby="h-summary">
+  <h2 id="h-summary">The Short Version</h2>
+  <p>At this price, no one designs their own processors, screens, or camera sensors. Google, Nothing, and Xiaomi all buy them from the same handful of suppliers. What separates one $500 phone from another is which parts get picked, how the body is built, and what the software lets the owner do. That is where our design effort goes.</p>
+  <p>The biggest constraint right now is memory. RAM and storage prices roughly quadrupled over the past year, and memory now takes about 40% of a midrange phone’s parts budget. Most of the decisions below follow from that.</p>
+  <dl class="decisions">
+    <dt><a class="x" href="#budget">Target price</a></dt>
+    <dd>$549 for 8 GB and 128 GB. A $499 version is possible with the fallback chip.</dd>
+    <dt><a class="x" href="#chip">Chip platform</a></dt>
+    <dd>MediaTek Dimensity 8500. Qualcomm Snapdragon 7 Gen 4 if we hold $499.</dd>
+    <dt><a class="x" href="#budget">Memory</a></dt>
+    <dd>8 GB RAM, 128 GB storage, and a microSD slot.</dd>
+    <dt><a class="x" href="#ours">What we design</a></dt>
+    <dd>Machined aluminum frame, front home button with fingerprint sensor, alert slider, headphone jack with its own DAC, screwed-together repairable build, and an open bootloader.</dd>
+    <dt><a class="x" href="#plan">How it gets built</a></dt>
+    <dd>Joint development with an experienced phone ODM. We own the design; they bring board engineering, certification help, and the factory.</dd>
+  </dl>
+</section>
+
+<section id="buyer" aria-labelledby="h-buyer">
+  <h2 id="h-buyer">Who It’s For</h2>
+  <p>From our board: a technical US buyer, young adult to middle-aged, middle class to high end, value-driven, who cares how things are made. They read reviews, compare benchmark scores, and notice when a button feels cheap. The iPhone’s design aims at a different crowd, which leaves room for a phone that looks and feels like a precision tool.</p>
+  <p>That buyer gives us three rules for every decision:</p>
+  <ul>
+    <li>Every claim on the box should be something a reviewer can measure and confirm.</li>
+    <li>Controls used without looking (unlock, silence, audio) should be physical.</li>
+    <li>The owner should be able to open the phone, replace the battery, and install their own software.</li>
+  </ul>
+</section>
+
+<section id="market" aria-labelledby="h-market">
+  <h2 id="h-market">What $500 Buys Today</h2>
+  <p>These are the phones our buyer will compare us against. The Pixel 10a and Nothing (4a) Pro are the direct rivals on US shelves; the Poco and Fairphone mark the edges of what is possible on speed and on repair.</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th scope="col">Phone</th><th scope="col">US Price</th><th scope="col">Chip</th><th scope="col">RAM / Storage</th><th scope="col">Battery</th><th scope="col">Stands Out For</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row"><a class="x" href="https://www.techradar.com/phones/google-pixel-phones/google-pixel-10a-review">Google Pixel 10a</a></th><td>$499</td><td>Tensor G4</td><td>8 GB / 128 GB</td><td>5,100 mAh</td><td>7 years of Android updates, IP68, 30 W wired and 10 W wireless charging</td></tr>
+        <tr><th scope="row"><a class="x" href="https://smartprix.com/mobiles/nothing-phone-4a-pro-ppd1r955oi6x">Nothing Phone (4a) Pro</a></th><td>$499, or $599 for 12 / 256</td><td>Snapdragon 7 Gen 4</td><td>8 GB / 128 GB</td><td>5,400 mAh</td><td>Aluminum body, 6.83 in 144 Hz screen, 3 Android upgrades and 6 years of security patches</td></tr>
+        <tr><th scope="row"><a class="x" href="https://www.gsmarena.com/xiaomi_poco_x8_pro_5g-14506.php">Xiaomi Poco X8 Pro</a></th><td>About $355–420, imported</td><td>Dimensity 8500 Ultra</td><td>8 GB / 256 GB</td><td>6,500 mAh</td><td>Fastest chip in the group, 100 W charging; not sold officially in the US</td></tr>
+        <tr><th scope="row"><a class="x" href="https://www.digitaltrends.com/phones/the-phone-you-can-actually-repair-yourself-is-finally-coming-to-the-us/">Fairphone Gen 6+</a></th><td>$649</td><td>Snapdragon 7s Gen 4</td><td>12 GB / 256 GB + microSD</td><td>4,415 mAh, removable</td><td>iFixit 10/10, 12 owner-replaceable parts, support through 2033</td></tr>
+        <tr class="ours"><th scope="row"><a class="x" href="#spec">Ours (target)</a></th><td>$549</td><td>Dimensity 8500</td><td>8 GB / 128 GB + microSD</td><td>5,000–5,500 mAh, replaceable</td><td>Headphone jack with DAC, home button, alert slider, open bootloader</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h3>What This Tells Us</h3>
+  <ul>
+    <li>Both phones Americans can buy new at $499 ship 8 GB of RAM and sit in the same performance tier. Reviewers already call the Pixel 10a’s 8 GB tight.</li>
+    <li>Raw speed per dollar belongs to Xiaomi’s Poco line, with a chip about 50% faster, but it isn’t sold officially in the US.</li>
+    <li>Repairability belongs to Fairphone, at $649 with a slower chip.</li>
+    <li>Neither the Pixel 10a nor the Nothing (4a) Pro has a headphone jack. <a href="https://blog.ecoatm.com/phones-with-headphone-jacks/">Only about 15–20% of phone models still had one in 2025</a>, mostly gaming phones and budget Motorolas.</li>
+    <li>No one sells Poco-class speed, a real headphone jack, and Fairphone-style repair together for around $500. That gap is our product.</li>
+  </ul>
+</section>
+
+<section id="budget" aria-labelledby="h-budget">
+  <h2 id="h-budget">The Budget Problem Is Memory</h2>
+  <p>AI data centers are buying up the world’s memory supply, and phones are paying for it. A few numbers from 2026:</p>
+  <ul>
+    <li>Phone RAM went from about $2.80 per GB in 2025 to about $12 in 2026, based on Morgan Stanley data cited by Google.</li>
+    <li><a href="https://www.techpowerup.com/349086/mobile-dram-contract-prices-continue-rising-in-2q26-pressuring-smartphone-production">TrendForce measured LPDDR5X contract prices</a> rising 78–83% in a single quarter (Q2 2026).</li>
+    <li><a href="https://counterpointresearch.com/en/insights/Memory-Price-Surge-Triggers-Shifts-in-Smartphone-BOM-Structure">Counterpoint estimates</a> memory is now about 40% of a midrange phone’s parts cost, and DRAM has passed the processor as the most expensive single part in premium phones.</li>
+    <li>Phone makers are settling on 8 GB as the standard for midrange models, <a href="https://hitechcentury.com/why-pc-tablet-smartphone-prices-rising/">according to TrendForce</a>.</li>
+    <li>Even Apple felt it: <a href="https://counterpointresearch.com/en/insights/Infographic-iPhone-16e-%26-iPhone-17e-BoM-Cost-Comparison">Counterpoint puts the iPhone 17e’s parts cost</a> 15.6% above the iPhone 16e’s, mostly from memory.</li>
+  </ul>
+  <p>Our response is 8 GB of RAM, 128 GB of storage, and a microSD slot. The slot lets us buy less flash at today’s prices and lets owners add cheap storage themselves, which this buyer will appreciate.</p>
+
+  <div class="calc">
+    <h3>Parts Cost Model (Our Estimate)</h3>
+    <p class="note">Pick a configuration. Each bar shows the low and high end of what that part likely costs per phone at 2026 prices. Memory is green and the chip is gold.</p>
+    <form id="calc-form" class="controls" onsubmit="return false">
+      <fieldset>
+        <legend>Chip</legend>
+        <div class="seg">
+          <label><input type="radio" name="chip" value="d8500" checked><span>Dimensity 8500</span></label>
+          <label><input type="radio" name="chip" value="sd7g4"><span>Snapdragon 7 Gen 4</span></label>
+          <label><input type="radio" name="chip" value="sd8sg4"><span>Snapdragon 8s Gen 4</span></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>RAM</legend>
+        <div class="seg">
+          <label><input type="radio" name="ram" value="8" checked><span>8 GB</span></label>
+          <label><input type="radio" name="ram" value="12"><span>12 GB</span></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Storage</legend>
+        <div class="seg">
+          <label><input type="radio" name="storage" value="128" checked><span>128 GB</span></label>
+          <label><input type="radio" name="storage" value="256"><span>256 GB</span></label>
+        </div>
+      </fieldset>
+    </form>
+    <div class="bom" id="bom-rows"></div>
+    <div class="results" aria-live="polite">
+      <div><div class="k">Parts cost range</div><div class="v" id="t-range">$0</div></div>
+      <div><div class="k">Midpoint</div><div class="v" id="t-mid">$0</div></div>
+      <div><div class="k">Memory share of parts</div><div class="v" id="t-mem">0%</div></div>
+      <div><div class="k">Price if parts are 65%</div><div class="v" id="t-price">$0</div></div>
+    </div>
+    <p class="results-line" id="t-499"></p>
+  </div>
+
+  <h3>How the Model Works</h3>
+  <p>Memory uses $8–12 per GB for LPDDR5X RAM and $0.25–0.50 per GB for UFS flash, which brackets reported 2026 contract prices. Chip makers don’t publish prices, so the chip ranges are our estimates. The other parts are scaled from <a href="https://www.techinsights.com/blog/google-pixel-9a-teardown-tensor-g4-processor-and-cost-analysis">TechInsights’ Pixel 9a teardown</a>, where the processor was about 30% of the parts cost, the cameras about 15%, and the display about 7%.</p>
+  <p>The implied price assumes parts make up 65% of the selling price, roughly what a lean brand selling direct online could run. Large brands sit far lower: <a href="https://m.gsmarena.com/cr_components_for_1199_iphone_15_pro_max_cost_502-amp-60527.php">Counterpoint’s estimate put the iPhone 15 Pro Max’s parts</a> at about 42% of its price.</p>
+  <h3>Where the Rest of the Money Goes</h3>
+  <p>The other 35% has to cover 5G patent licenses (Qualcomm and other patent holders each charge a share of the phone’s price), certification and tooling spread across every unit, warranty and returns, shipping and payment fees, marketing, and whatever is left as profit. That is why $549 is a more honest target than $499, unless we sell direct and accept a very thin margin.</p>
+</section>
+
+<section id="chip" aria-labelledby="h-chip">
+  <h2 id="h-chip">Choosing the Chip Platform</h2>
+  <p>The chip platform is the first hardware decision because it fixes most of the others. It comes with the 5G modem, Wi-Fi, Bluetooth, GPS, the camera image processor, a reference board design, and the Android support package. It also limits which manufacturers can build the phone, since each ODM works with certain platforms.</p>
+  <p>One correction to <a href="https://www.techplayon.com/mobile-phone-architecture/">our block diagram</a>: it shows GPS, Wi-Fi, and Bluetooth as separate modules. In a current phone those come from the platform (on the main chip or its companion chips), so we don’t source them separately.</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th scope="col">Chip</th><th scope="col">Announced</th><th scope="col">AnTuTu (Approx.)</th><th scope="col">Geekbench 6 Single / Multi</th><th scope="col">Used In</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row"><a class="x" href="https://www.pickr.com.au/reviews/2026/google-pixel-10a/">Google Tensor G4</a> <span class="note">(for reference)</span></th><td>2024</td><td>1.4–1.5 million<span class="meter" style="--v:.48"></span></td><td>1,723 / 4,334</td><td>Pixel 10a</td></tr>
+        <tr><th scope="row"><a class="x" href="https://www.91mobiles.com/processor/qualcomm-snapdragon-7-gen-4-pdp">Snapdragon 7 Gen 4</a></th><td>May 2025</td><td>1.3–1.45 million<span class="meter" style="--v:.47"></span></td><td>1,385 / 4,314</td><td>Nothing Phone (4a) Pro</td></tr>
+        <tr class="ours"><th scope="row"><a class="x" href="https://www.gadgetscout.co.uk/articles/mediatek-dimensity-8500-vs-snapdragon-8-elite-gen-5-what.html">Dimensity 8500</a></th><td>January 2026</td><td>2.15 million<span class="meter pick" style="--v:.71"></span></td><td>1,721 / 6,716</td><td>Poco X8 Pro, Redmi Turbo 5</td></tr>
+        <tr><th scope="row"><a class="x" href="https://www.91mobiles.com/processor/qualcomm-snapdragon-8s-gen-4-vs-mediatek-dimensity-8500-ultra">Snapdragon 8s Gen 4</a></th><td>April 2025</td><td>2.37 million<span class="meter" style="--v:.78"></span></td><td>Not in our sources</td><td>Poco F7, Nothing Phone (3)</td></tr>
+        <tr><th scope="row"><a class="x" href="https://comparigon.com/mobilesoc-comparison/dimensity-8500-vs-snapdragon-8-gen-5">Snapdragon 8 Gen 5</a></th><td>November 2025</td><td>3.04 million<span class="meter" style="--v:1"></span></td><td>2,749 / 9,860</td><td>OnePlus 15R</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="table-note">Scores vary by phone, cooling, and benchmark version. Treat them as tiers, not exact numbers.</p>
+
+  <h3>Our Pick: MediaTek Dimensity 8500</h3>
+  <ul>
+    <li>About 50% faster than the Pixel 10a and Nothing (4a) Pro in AnTuTu, which gives our performance claim something real to stand on.</li>
+    <li>New for 2026, built on TSMC’s efficient 4 nm process with all big CPU cores.</li>
+    <li>Already shipping in phones that sell for about $355–420, so the cost fits our class.</li>
+    <li>MediaTek has long worked with ODMs on ready-made phone designs, which suits a small brand.</li>
+  </ul>
+  <p>The risks are a smaller custom ROM community than Snapdragon’s and games that are sometimes tuned for Qualcomm graphics first. We answer the first by publishing kernel source and device files on launch day, and the second by testing popular games on early prototypes.</p>
+  <h3>Fallback: Qualcomm Snapdragon 7 Gen 4</h3>
+  <p>If $499 is a hard line, this is the chip. It matches Nothing’s, brings Wi-Fi 7 and Bluetooth 6.0, and has Qualcomm’s stronger custom ROM community. We would then compete on build, audio, and openness rather than speed. The Snapdragon 8s Gen 4 is slightly faster than the Dimensity 8500 but pushes the price toward $590 in our model.</p>
+</section>
+
+<section id="build" aria-labelledby="h-build">
+  <h2 id="h-build">Build or Buy, Part by Part</h2>
+  <p>Anything a supplier makes in the hundreds of millions, we buy. Anything the buyer sees, touches, or uses to judge craftsmanship, we design.</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th scope="col">Part</th><th scope="col">Decision</th><th scope="col">Likely Suppliers</th><th scope="col">What We Look For</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row"><a class="x" href="#chip">Chip platform</a> (CPU, graphics, 5G modem, Wi-Fi, Bluetooth, GPS)</th><td><span class="tag buy">Buy</span></td><td>MediaTek or Qualcomm, through the ODM</td><td>Performance tier, sustained thermals, US 5G bands, years of support</td></tr>
+        <tr><th scope="row"><a class="x" href="#budget">RAM</a></th><td><span class="tag buy">Buy</span></td><td>Samsung, SK hynix, Micron, CXMT</td><td>8 GB LPDDR5X; lock a supply contract early because prices keep rising</td></tr>
+        <tr><th scope="row"><a class="x" href="#budget">Storage</a></th><td><span class="tag buy">Buy</span></td><td>Samsung, SK hynix, Kioxia, Micron</td><td>128 GB UFS, plus platform support for a microSD slot</td></tr>
+        <tr><th scope="row">Radio parts and antennas</th><td><div class="tags"><span class="tag buy">Buy parts</span><span class="tag design">Design placement</span></div></td><td>Qorvo, Skyworks, Murata; the ODM’s antenna team</td><td>Coverage on AT&amp;T, T-Mobile, and Verizon bands inside a metal frame</td></tr>
+        <tr><th scope="row">OLED display</th><td><span class="tag buy">Buy</span></td><td>Samsung Display, BOE, Visionox, Tianma</td><td>6.4 in, 2400×1080, 120 Hz, bright enough for direct sun</td></tr>
+        <tr><th scope="row">Cover glass and back glass</th><td><span class="tag buy">Buy</span></td><td>Corning, AGC, Lens Technology</td><td>Drop performance; matte, fingerprint-resistant back finish</td></tr>
+        <tr><th scope="row">Cameras</th><td><span class="tag buy">Buy modules</span></td><td>Sony and Samsung sensors; module makers such as Sunny Optical and Q Tech</td><td>50 MP main with OIS (Sony IMX882 class, as in the Poco X8 Pro) and a 12 MP ultrawide</td></tr>
+        <tr><th scope="row">Battery cell</th><td><span class="tag buy">Buy</span></td><td>ATL, Sunwoda, Desay</td><td>5,000+ mAh, silicon-carbon if space is tight, long cycle life</td></tr>
+        <tr><th scope="row"><a class="x" href="#f-jack">Headphone DAC and amplifier</a></th><td><span class="tag buy">Buy</span></td><td>Cirrus Logic, ESS Technology</td><td>Low noise and enough output for wired headphones; this is a headline feature</td></tr>
+        <tr><th scope="row">Speakers, mics, haptic motor</th><td><span class="tag buy">Buy</span></td><td>AAC Technologies, Goertek</td><td>Stereo speakers and a strong, crisp haptic motor</td></tr>
+        <tr><th scope="row"><a class="x" href="#f-home">Fingerprint sensor</a></th><td><span class="tag buy">Buy</span></td><td>Goodix, Fingerprint Cards, Egis</td><td>Capacitive type that fits inside the home button</td></tr>
+        <tr><th scope="row">Motion and light sensors</th><td><span class="tag buy">Buy</span></td><td>Bosch, STMicroelectronics, TDK InvenSense</td><td>Whatever the reference design already supports</td></tr>
+        <tr><th scope="row">Main board layout</th><td><span class="tag design">Design</span></td><td>Our team with ODM engineers</td><td>Start from the reference design; make room for the jack, DAC, button, and cooling</td></tr>
+        <tr><th scope="row"><a class="x" href="#f-frame">Frame and enclosure</a></th><td><span class="tag design">Design</span></td><td>CNC machining through the ODM’s suppliers</td><td>6000-series aluminum, antenna breaks, screws instead of glue</td></tr>
+        <tr><th scope="row"><a class="x" href="#f-slider">Buttons, alert slider, jack opening</a></th><td><span class="tag design">Design</span></td><td>Our team</td><td>Click feel, travel, and sealing against water and dust</td></tr>
+        <tr><th scope="row"><a class="x" href="#f-cooling">Cooling</a></th><td><span class="tag design">Design</span></td><td>Our team with the ODM</td><td>Vapor chamber sized for sustained load, not just benchmarks</td></tr>
+        <tr><th scope="row"><a class="x" href="#f-software">Software</a></th><td><span class="tag adapt">Adapt</span></td><td>Android open source plus the chip vendor’s support package</td><td>Near-stock Android, long updates, unlockable bootloader</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="ours" aria-labelledby="h-ours">
+  <h2 id="h-ours">What We Design Ourselves</h2>
+  <p>These are the parts of the phone that carry our name. Each one has an engineering cost, listed with it.</p>
+
+  <div class="feature" id="f-frame">
+    <h3>Machined Aluminum Frame</h3>
+    <div>
+      <p>The first thing the buyer touches, so it carries the engineered feeling: cool metal, crisp chamfers, tight seams.</p>
+      <p class="catch"><strong>The catch:</strong> metal blocks radio signals. The frame needs antenna breaks (thin plastic-filled slots) placed with the ODM’s radio team, and the back has to be glass if we want wireless charging.</p>
+    </div>
+  </div>
+  <div class="feature" id="f-home">
+    <h3>Home Button with Fingerprint Sensor</h3>
+    <div>
+      <p>Unlock and go home without looking, with a real click.</p>
+      <p class="catch"><strong>The catch:</strong> the button takes the bottom of the front face, so the phone gets a little taller or the screen a little smaller. We settle the size early with physical models.</p>
+    </div>
+  </div>
+  <div class="feature" id="f-slider">
+    <h3>Alert Slider</h3>
+    <div>
+      <p>A three-position switch for ring, vibrate, and silent.</p>
+      <p class="catch"><strong>The catch:</strong> one more opening to seal and one more mechanical part to test for thousands of cycles.</p>
+    </div>
+  </div>
+  <div class="feature" id="f-jack">
+    <h3>Headphone Jack with Its Own DAC</h3>
+    <div>
+      <p>Wired audio through a proper DAC (digital-to-analog converter, the chip that turns digital audio into the signal headphones play) and amplifier.</p>
+      <p class="catch"><strong>The catch:</strong> the jack takes board and frame space and is another path for water, so we target IP65 rather than IP68 unless the ODM has a proven sealed jack.</p>
+    </div>
+  </div>
+  <div class="feature" id="f-repair">
+    <h3>Repairable Build</h3>
+    <div>
+      <p>Screws instead of glue on the back, a pull-tab battery, and published spare part prices. <a href="https://hypebeast.com/2026/8/fairphone-gen-6-repairable-smartphone-launches-in-us">Fairphone sells a replacement screen for $90 and a battery for $40</a>, which sets the bar.</p>
+      <p class="catch"><strong>The catch:</strong> screws and gaskets add a little thickness and assembly time.</p>
+    </div>
+  </div>
+  <div class="feature" id="f-cooling">
+    <h3>Sustained Performance</h3>
+    <div>
+      <p>Engineers notice when a phone slows down after a few minutes of load. A vapor chamber keeps the chip near full speed, and we publish our own sustained-load results.</p>
+      <p class="catch"><strong>The catch:</strong> it adds cost, thickness, and weight.</p>
+    </div>
+  </div>
+  <div class="feature" id="f-software">
+    <h3>Open Software</h3>
+    <div>
+      <p><a href="https://www.sammobile.com/news/say-goodbye-to-your-custom-roms-as-one-ui-8-kills-bootloader-unlock/">Samsung removed bootloader unlocking from all its phones with One UI 8</a>, and Xiaomi has restricted it too. Supporting unlocking and relocking, and publishing kernel source and device files at launch, costs little and matters a lot to this buyer.</p>
+      <p class="catch"><strong>The catch:</strong> unlocked phones can fail some banking and payment app checks, so relocking has to be easy.</p>
+    </div>
+  </div>
+</section>
+
+<section id="spec" aria-labelledby="h-spec">
+  <h2 id="h-spec">Draft Spec Sheet, Version 0.1</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th scope="col">Item</th><th scope="col">Target</th><th scope="col">Why</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row"><a class="x" href="#budget">Price</a></th><td>$549 (8 GB / 128 GB)</td><td>$50 above the Pixel 10a and Nothing (4a) Pro, paid for by speed, audio, and build</td></tr>
+        <tr><th scope="row"><a class="x" href="#chip">Chip</a></th><td>MediaTek Dimensity 8500</td><td>About 50% more performance than the $499 competition</td></tr>
+        <tr><th scope="row"><a class="x" href="#budget">Memory</a></th><td>8 GB LPDDR5X, 128 GB UFS, microSD slot</td><td>Keeps cost under control during the memory shortage</td></tr>
+        <tr><th scope="row">Display</th><td>6.4 in OLED, 2400×1080, 120 Hz</td><td>Leaves room for a front button without a giant phone</td></tr>
+        <tr><th scope="row">Rear cameras</th><td>50 MP main with OIS, 12 MP ultrawide</td><td>Proven sensors; no telephoto, to protect the budget</td></tr>
+        <tr><th scope="row">Front camera</th><td>16 MP</td><td>Enough for video calls</td></tr>
+        <tr><th scope="row">Battery and charging</th><td>5,000–5,500 mAh, 45 W wired, 15 W wireless</td><td>Matches the class and stays owner-replaceable</td></tr>
+        <tr><th scope="row"><a class="x" href="#f-jack">Audio</a></th><td>3.5 mm jack with dedicated DAC, stereo speakers</td><td>Our clearest point of difference</td></tr>
+        <tr><th scope="row"><a class="x" href="#f-home">Controls</a></th><td>Home button with fingerprint sensor, alert slider, power, volume</td><td>Everyday actions work without looking</td></tr>
+        <tr><th scope="row"><a class="x" href="#f-frame">Body</a></th><td>Machined aluminum frame, matte glass back, IP65</td><td>Feels engineered; IP68 is a stretch goal</td></tr>
+        <tr><th scope="row"><a class="x" href="#chip">Connectivity</a></th><td>5G on US bands, Wi-Fi, Bluetooth, NFC, USB-C</td><td>Set by the chip platform</td></tr>
+        <tr><th scope="row"><a class="x" href="#f-software">Software</a></th><td>Near-stock Android 16, 5 Android upgrades, 6 years of security patches, unlockable bootloader</td><td>Beats Nothing’s 3 upgrades; Pixel’s 7 years stays the benchmark</td></tr>
+        <tr><th scope="row"><a class="x" href="#f-repair">Repair</a></th><td>Screwed back panel, pull-tab battery, spare parts sold to owners</td><td>Fairphone shows people will pay for this</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="plan" aria-labelledby="h-plan">
+  <h2 id="h-plan">From Idea to Factory</h2>
+
+  <h3 id="odm">Who Builds It</h3>
+  <p>Almost no phone brand builds every phone itself. Three kinds of partner do the work:</p>
+  <dl class="terms">
+    <dt>ODM (original design manufacturer)</dt>
+    <dd>Designs and builds the phone for a brand. <a href="https://counterpointresearch.com/cn/insights/idh-odm-contribution-to-overall-smartphone-shipments-climbs-to-all-time-high-in-2023">Huaqin, Longcheer, and Wingtech shipped more than three quarters</a> of all outsourced phones in 2023.</dd>
+    <dt>IDH (independent design house)</dt>
+    <dd>Designs the electronics; a separate factory builds them.</dd>
+    <dt>EMS (electronics manufacturing services)</dt>
+    <dd>Builds to the brand’s own design. Apple and Google design in-house but outsource all manufacturing this way.</dd>
+  </dl>
+  <p>Motorola and Xiaomi outsource most of their phone designs (Xiaomi about 78% in early 2024), and <a href="https://www.neowin.net/news/report-shows-that-samsung-doesnt-rely-much-on-outsourced-designed-phones/">even Samsung uses ODMs for some Galaxy A models</a>. We would work as a joint development client: we own industrial design, mechanics, the differentiating features, and software direction. The ODM brings the chip platform, board and radio engineering, certification support, and the factory.</p>
+
+  <h3 id="cert">Certification Before We Can Sell</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th scope="col">Approval</th><th scope="col">What It Covers</th><th scope="col">Cost</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row"><a class="x" href="https://markready.io/guides/fcc-certification">FCC equipment authorization</a></th><td>Legally required to sell any radio device in the US; covers emissions and radio exposure</td><td>Part of the total below</td></tr>
+        <tr><th scope="row"><a class="x" href="https://ctiacertification.org/program/ptcrb-certification/">PTCRB</a></th><td>Confirms the phone behaves on North American cellular networks; carriers require it</td><td>$12,500 certification fee plus lab testing</td></tr>
+        <tr><th scope="row">Carrier acceptance</th><td>AT&amp;T, T-Mobile, and Verizon each run their own tests on top of PTCRB</td><td>Lab and carrier fees per network</td></tr>
+        <tr><th scope="row"><a class="x" href="https://bluemaestro.com/resources/bluetooth-compliance-fcc-ce">Bluetooth SIG</a></th><td>Needed to use the Bluetooth name and logo</td><td>Membership is free; qualification costs vary</td></tr>
+        <tr><th scope="row">Wi-Fi Alliance</th><td>Wi-Fi certified logo, which carriers and retailers expect</td><td>Fees vary</td></tr>
+        <tr><th scope="row">Google Mobile Services</th><td>Play Store and Google apps; requires passing Google’s compatibility tests</td><td>Handled with the ODM, which has done it before</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>For a 5G phone, <a href="https://markready.io/guides/fcc-certification">MarkReady estimates</a> FCC, PTCRB, and carrier work together at $50,000–200,000 or more, over 6–9 months.</p>
+  <p>Where the phone is assembled also matters. US tariff rules shifted several times in 2026. <a href="https://koalagains.com/industry-tariff-report/chapters/85-electrical-machinery-and-recorders/tariff-updates">Trade trackers show smartphones exempted</a> from the broad new import duties, but this changes quickly, so we check again before choosing an assembly country.</p>
+
+  <h3>Critical Path</h3>
+  <p>This updates <a href="https://8849tech.com/blogs/blog/how-are-smartphones-made">the ten-step list on our board</a>. We added choosing the platform and ODM as its own step, because it decides almost everything after it, and spelled out the three prototype rounds. Timing assumes about 12 months with an experienced ODM; that is our planning assumption, not a quote.</p>
+  <ol class="path">
+    <li>
+      <div class="what"><strong><a class="x" href="#market">Concept and market research</a></strong><p>Lock the buyer, the price, and the features we design ourselves.</p></div>
+      <div class="when">Month 0–1<span class="gantt" style="--s:0;--e:1"></span></div>
+    </li>
+    <li>
+      <div class="what"><strong><a class="x" href="#odm">Choose the chip platform and ODM</a></strong> <span class="tag adapt">Added</span><p>These decide each other. Get quotes from two or three ODMs.</p></div>
+      <div class="when">Months 1–2<span class="gantt" style="--s:1;--e:2"></span></div>
+    </li>
+    <li>
+      <div class="what"><strong><a class="x" href="#ours">Industrial and mechanical design</a></strong><p>Frame, button, jack, slider, and cooling. Build foam and machined models to feel the size.</p></div>
+      <div class="when">Months 1–4<span class="gantt" style="--s:1;--e:4"></span></div>
+    </li>
+    <li>
+      <div class="what"><strong>Board design and software bring-up</strong><p>Adapt the reference design and get Android booting on early boards.</p></div>
+      <div class="when">Months 2–6<span class="gantt" style="--s:2;--e:6"></span></div>
+    </li>
+    <li>
+      <div class="what"><strong>EVT prototypes</strong> <span class="tag adapt">Added</span><p>Engineering validation test: first working units. Does every part work?</p></div>
+      <div class="when">Months 4–6<span class="gantt" style="--s:4;--e:6"></span></div>
+    </li>
+    <li>
+      <div class="what"><strong>DVT prototypes</strong><p>Design validation test: near-final units go through drop, heat, battery, radio, and water tests.</p></div>
+      <div class="when">Months 6–8<span class="gantt" style="--s:6;--e:8"></span></div>
+    </li>
+    <li>
+      <div class="what"><strong><a class="x" href="#cert">Testing and certification</a></strong><p>FCC, PTCRB, carriers, Bluetooth, Wi-Fi, and Google.</p></div>
+      <div class="when">Months 7–10<span class="gantt" style="--s:7;--e:10"></span></div>
+    </li>
+    <li>
+      <div class="what"><strong>PVT pilot run</strong> <span class="tag adapt">Added</span><p>Production validation test: a small run on the real assembly line.</p></div>
+      <div class="when">Months 9–10<span class="gantt" style="--s:9;--e:10"></span></div>
+    </li>
+    <li>
+      <div class="what"><strong>Mass production, final assembly, and test</strong><p>Every unit tested at the end of the line.</p></div>
+      <div class="when">Months 10–12<span class="gantt" style="--s:10;--e:12"></span></div>
+    </li>
+    <li>
+      <div class="what"><strong>Packaging, shipping, and launch</strong><p>Box, accessories, and sales channel ready.</p></div>
+      <div class="when">Month 12<span class="gantt" style="--s:11.5;--e:12"></span></div>
+    </li>
+  </ol>
+</section>
+
+<section id="questions" aria-labelledby="h-questions">
+  <h2 id="h-questions">Open Questions for the Team</h2>
+  <ul>
+    <li>Is $549 acceptable, or is $499 a hard line? That decides between <a href="#chip">the Dimensity 8500 and the Snapdragon 7 Gen 4</a>.</li>
+    <li>Glass back with wireless charging, or a full metal back without it? Metal feels more machined but loses wireless charging and <a href="#f-frame">makes antennas harder</a>.</li>
+    <li>How much screen are we willing to give up for <a href="#f-home">the front home button</a>?</li>
+    <li>IP65 or IP68? <a href="#f-jack">The jack and slider make IP68 harder</a> and more expensive.</li>
+    <li>Should we build a physical model? A 3D-printed or machined shell with a working button and slider would sell the tactile idea better than any render.</li>
+    <li>What do we call it?</li>
+  </ul>
+</section>
+
+<section id="sources" class="sources" aria-labelledby="h-sources">
+  <h2 id="h-sources">Sources</h2>
+
+  <h3>Competitors</h3>
+  <ul>
+    <li><a href="https://www.techradar.com/phones/google-pixel-phones/google-pixel-10a-review">TechRadar: Google Pixel 10a review</a></li>
+    <li><a href="https://www.androidcentral.com/phones/google-pixel/google-pixel-10a-review">Android Central: Google Pixel 10a review</a></li>
+    <li><a href="https://mobilesyrup.com/2026/03/04/google-pixel-10a-review-clone-phone/">MobileSyrup: Google Pixel 10a review</a></li>
+    <li><a href="https://www.ubergizmo.com/2026/03/nothing-phone-4a-and-4a-pro/">Ubergizmo: Nothing Phone (4a) and (4a) Pro pricing and specs</a></li>
+    <li><a href="https://www.gizmochina.com/?p=729635">Gizmochina: Nothing Phone (4a) series launch and update policy</a></li>
+    <li><a href="https://smartprix.com/mobiles/nothing-phone-4a-pro-ppd1r955oi6x">Smartprix: Nothing Phone (4a) Pro specifications</a></li>
+    <li><a href="https://www.gsmarena.com/xiaomi_poco_x8_pro_5g-14506.php">GSMArena: Xiaomi Poco X8 Pro specifications</a></li>
+    <li><a href="https://mobilemasr.com/en/blogs/xiaomi-poco-x8-pro">Mobile Masr: Poco X8 Pro specs (camera sensor)</a></li>
+    <li><a href="https://the-gadgeteer.com/?p=516644">The Gadgeteer: Poco X8 Pro pricing</a></li>
+    <li><a href="https://www.digitaltrends.com/phones/the-phone-you-can-actually-repair-yourself-is-finally-coming-to-the-us/">Digital Trends: Fairphone Gen 6+ comes to the US</a></li>
+    <li><a href="https://hypebeast.com/2026/8/fairphone-gen-6-repairable-smartphone-launches-in-us">Hypebeast: Fairphone Gen 6+ spare part prices</a></li>
+    <li><a href="https://blog.ecoatm.com/phones-with-headphone-jacks/">ecoATM: phones with headphone jacks still available</a></li>
+  </ul>
+
+  <h3>Costs and Memory Prices</h3>
+  <ul>
+    <li><a href="https://counterpointresearch.com/en/insights/reshuffling-the-bom-componentcost-dynamics-amid-memory-price-spikes">Counterpoint: Reshuffling the BoM, component cost dynamics amid memory price spikes (July 2026)</a></li>
+    <li><a href="https://counterpointresearch.com/en/insights/Memory-Price-Surge-Triggers-Shifts-in-Smartphone-BOM-Structure">Counterpoint: Memory price surge triggers shifts in smartphone BOM structure</a></li>
+    <li><a href="https://counterpointresearch.com/en/insights/Infographic-iPhone-16e-%26-iPhone-17e-BoM-Cost-Comparison">Counterpoint: iPhone 16e and iPhone 17e BoM cost comparison</a></li>
+    <li><a href="https://capitalandcompute.net/blog/why-are-phones-more-expensive-2026/">Capital and Compute: Why are phones more expensive in 2026?</a></li>
+    <li><a href="https://www.techpowerup.com/349086/mobile-dram-contract-prices-continue-rising-in-2q26-pressuring-smartphone-production">TechPowerUp, reporting TrendForce: mobile DRAM contract prices in Q2 2026</a></li>
+    <li><a href="https://hitechcentury.com/why-pc-tablet-smartphone-prices-rising/">Hi-Tech Century, reporting TrendForce: memory configurations by tier</a></li>
+    <li><a href="https://www.techinsights.com/blog/google-pixel-9a-teardown-tensor-g4-processor-and-cost-analysis">TechInsights: Google Pixel 9a teardown and cost analysis</a></li>
+    <li><a href="https://m.gsmarena.com/cr_components_for_1199_iphone_15_pro_max_cost_502-amp-60527.php">GSMArena, reporting Counterpoint: iPhone 15 Pro Max parts cost</a></li>
+  </ul>
+
+  <h3>Chips</h3>
+  <ul>
+    <li><a href="https://www.91mobiles.com/processor/qualcomm-snapdragon-7-gen-4-pdp">91mobiles: Snapdragon 7 Gen 4 specs and benchmarks</a></li>
+    <li><a href="https://www.91mobiles.com/processor/qualcomm-snapdragon-8s-gen-4-vs-mediatek-dimensity-8500-ultra">91mobiles: Snapdragon 8s Gen 4 vs Dimensity 8500 Ultra</a></li>
+    <li><a href="https://comparigon.com/mobilesoc-comparison/dimensity-8500-vs-snapdragon-8-gen-5">Comparigon: Dimensity 8500 vs Snapdragon 8 Gen 5</a></li>
+    <li><a href="https://www.gadgetscout.co.uk/articles/mediatek-dimensity-8500-vs-snapdragon-8-elite-gen-5-what.html">Gadget Scout: Dimensity 8500 announcement and positioning</a></li>
+    <li><a href="https://www.pickr.com.au/reviews/2026/google-pixel-10a/">Pickr: Pixel 10a benchmarks</a></li>
+    <li><a href="https://www.sammobile.com/news/say-goodbye-to-your-custom-roms-as-one-ui-8-kills-bootloader-unlock/">SamMobile: One UI 8 removes bootloader unlocking</a></li>
+  </ul>
+
+  <h3>Building and Certifying</h3>
+  <ul>
+    <li><a href="https://counterpointresearch.com/cn/insights/idh-odm-contribution-to-overall-smartphone-shipments-climbs-to-all-time-high-in-2023">Counterpoint: IDH/ODM share of smartphone shipments, 2023</a></li>
+    <li><a href="https://www.counterpointresearch.com/odms-contributed-23-global-smartphones-shipped-cy2017/">Counterpoint: ODM, IDH, and EMS definitions</a></li>
+    <li><a href="https://www.neowin.net/news/report-shows-that-samsung-doesnt-rely-much-on-outsourced-designed-phones/">Neowin, reporting Counterpoint: which brands outsource phone design</a></li>
+    <li><a href="https://counterpointresearch.com/cn/reports/global-smartphone-odm-tracker-h2-2024">Counterpoint: Global smartphone ODM tracker</a></li>
+    <li><a href="https://ctiacertification.org/program/ptcrb-certification/">CTIA Certification: PTCRB program and fees</a></li>
+    <li><a href="https://markready.io/guides/fcc-certification">MarkReady: FCC certification guide</a></li>
+    <li><a href="https://bluemaestro.com/resources/bluetooth-compliance-fcc-ce">Blue Maestro: Bluetooth compliance</a></li>
+    <li><a href="https://koalagains.com/industry-tariff-report/chapters/85-electrical-machinery-and-recorders/tariff-updates">KoalaGains: electronics tariff updates, 2025–2026</a></li>
+  </ul>
+
+  <h3>From Our Board</h3>
+  <ul>
+    <li><a href="https://8849tech.com/blogs/blog/how-are-smartphones-made">8849 Tech: How are smartphones made</a></li>
+    <li><a href="https://www.techplayon.com/mobile-phone-architecture/">Techplayon: Mobile phone architecture</a></li>
+  </ul>
+</section>
+
+</main>
+
+<footer>
+  <p>Prepared from our team’s planning board and the <a href="#sources">public sources above</a>. Estimates are labeled as ours. Prices in this market move month to month, so recheck them before any real decision.</p>
+</footer>
+
+<script>
+(function () {
+  var CHIPS = {
+    d8500: { name: "Chip: Dimensity 8500", lo: 60, hi: 85 },
+    sd7g4: { name: "Chip: Snapdragon 7 Gen 4", lo: 45, hi: 65 },
+    sd8sg4: { name: "Chip: Snapdragon 8s Gen 4", lo: 80, hi: 110 }
+  };
+  var RAM = { "8": { lo: 64, hi: 96 }, "12": { lo: 96, hi: 144 } };
+  var STORAGE = { "128": { lo: 32, hi: 64 }, "256": { lo: 64, hi: 128 } };
+  var OTHER = [
+    ["Cameras", 25, 38],
+    ["Frame, glass back, buttons", 22, 35],
+    ["OLED display", 17, 25],
+    ["Board, power chips, connectors", 18, 25],
+    ["RF front end and antennas", 12, 20],
+    ["Assembly, test, packaging", 12, 18],
+    ["Battery cell", 7, 10],
+    ["Sensors, fingerprint, haptics", 7, 10],
+    ["Audio: DAC, jack, speakers, mics", 6, 9]
+  ];
+  var SCALE = 160;
+  var PARTS_SHARE = 0.65;
+  var DASH = "\u2013";
+
+  var form = document.getElementById("calc-form");
+  var rowsEl = document.getElementById("bom-rows");
+
+  function money(n) { return "$" + Math.round(n).toLocaleString("en-US"); }
+
+  function makeRow(label, lo, hi, kind) {
+    var row = document.createElement("div");
+    row.className = "bom-row" + (kind ? " " + kind : "");
+    var l = document.createElement("div");
+    l.className = "lbl";
+    l.textContent = label;
+    var t = document.createElement("div");
+    t.className = "track";
+    var r = document.createElement("div");
+    r.className = "range";
+    r.style.left = (lo / SCALE * 100) + "%";
+    r.style.width = ((hi - lo) / SCALE * 100) + "%";
+    t.appendChild(r);
+    var v = document.createElement("div");
+    v.className = "val";
+    v.textContent = "$" + lo + DASH + hi;
+    row.appendChild(l);
+    row.appendChild(t);
+    row.appendChild(v);
+    return row;
+  }
+
+  function makeAxis() {
+    var row = document.createElement("div");
+    row.className = "bom-row axis-row";
+    row.setAttribute("aria-hidden", "true");
+    var l = document.createElement("div");
+    l.className = "lbl";
+    l.textContent = "Scale";
+    var a = document.createElement("div");
+    a.className = "axis";
+    [0, 40, 80, 120, 160].forEach(function (n) {
+      var s = document.createElement("span");
+      s.textContent = "$" + n;
+      a.appendChild(s);
+    });
+    row.appendChild(l);
+    row.appendChild(a);
+    return row;
+  }
+
+  function render() {
+    var chipKey = form.elements.chip.value;
+    var ramKey = form.elements.ram.value;
+    var stoKey = form.elements.storage.value;
+    var chip = CHIPS[chipKey], ram = RAM[ramKey], sto = STORAGE[stoKey];
+
+    var rows = [
+      ["RAM: " + ramKey + " GB LPDDR5X", ram.lo, ram.hi, "mem"],
+      ["Storage: " + stoKey + " GB UFS", sto.lo, sto.hi, "mem"],
+      [chip.name, chip.lo, chip.hi, "chip"]
+    ].concat(OTHER.map(function (o) { return [o[0], o[1], o[2], ""]; }));
+
+    rowsEl.textContent = "";
+    var lo = 0, hi = 0;
+    rows.forEach(function (r) {
+      rowsEl.appendChild(makeRow(r[0], r[1], r[2], r[3]));
+      lo += r[1];
+      hi += r[2];
+    });
+    rowsEl.appendChild(makeAxis());
+
+    var mid = (lo + hi) / 2;
+    var memMid = (ram.lo + ram.hi) / 2 + (sto.lo + sto.hi) / 2;
+    var price = Math.round(mid / PARTS_SHARE / 10) * 10;
+
+    document.getElementById("t-range").textContent = money(lo) + DASH + Math.round(hi);
+    document.getElementById("t-mid").textContent = money(mid);
+    document.getElementById("t-mem").textContent = Math.round(memMid / mid * 100) + "%";
+    document.getElementById("t-price").textContent = "About " + money(price);
+    document.getElementById("t-499").textContent =
+      "Sold at $499, parts would be about " + Math.round(mid / 499 * 100) +
+      "% of the price. Sold at $549, about " + Math.round(mid / 549 * 100) + "%.";
+  }
+
+  form.addEventListener("change", render);
+  render();
+})();
+
+(function () {
+  // Outside links open in a new tab so the reader keeps their place in the brief
+  document.querySelectorAll('a[href^="http"]').forEach(function (a) {
+    a.target = "_blank";
+    a.rel = "noopener";
+  });
+
+  // Underline the nav link for the section being read.
+  // ponytail: plain scroll listener, 11 rect reads per event is nothing
+  var nav = document.querySelector(".top nav");
+  var links = Array.prototype.slice.call(nav.querySelectorAll("a"));
+  var current = null;
+  function update() {
+    var line = window.innerHeight * 0.3, next = null;
+    links.forEach(function (a) {
+      if (document.getElementById(a.hash.slice(1)).getBoundingClientRect().top <= line) next = a;
+    });
+    if (next === current) return;
+    if (current) current.removeAttribute("aria-current");
+    current = next;
+    if (!current) return;
+    current.setAttribute("aria-current", "location");
+    // Keep the active link visible in the side-scrolling nav on phones (moves the nav strip only, never the page)
+    var n = nav.getBoundingClientRect(), r = current.getBoundingClientRect();
+    if (r.left < n.left || r.right > n.right) nav.scrollLeft += r.left - n.left - 16;
+  }
+  window.addEventListener("scroll", update, { passive: true });
+  update();
+})();
+</script>
+</body>
+</html>
